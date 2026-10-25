@@ -66,7 +66,7 @@ describe('VehicleCard', () => {
     expect(screen.getByText('4 in stock')).toBeInTheDocument();
   });
 
-  it('updates the card and shows a confirmation after a successful purchase', async () => {
+  it('updates the card after a successful purchase', async () => {
     const updated = vehicle({ quantity: 1 });
     vi.mocked(purchaseVehicle).mockResolvedValue(updated);
 
@@ -74,7 +74,6 @@ describe('VehicleCard', () => {
     await userEvent.click(screen.getByRole('button', { name: /purchase toyota corolla/i }));
 
     await waitFor(() => expect(onPurchased).toHaveBeenCalledWith(updated));
-    expect(await screen.findByText(/purchase confirmed/i)).toBeInTheDocument();
     expect(screen.getByText('Only 1 left')).toBeInTheDocument();
     expect(purchaseVehicle).toHaveBeenCalledWith(1);
   });

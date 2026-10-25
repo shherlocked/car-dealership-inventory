@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import Modal from './Modal';
+import Spinner from './Spinner';
 
 interface ConfirmDeleteModalProps {
   vehicleName: string;
@@ -33,19 +35,22 @@ export default function ConfirmDeleteModal({
 
   return (
     <Modal title="Delete vehicle" onClose={onCancel}>
-      <p className="mt-3 text-sm text-slate-600">
-        Are you sure you want to delete <span className="font-medium">{vehicleName}</span>? This
-        action cannot be undone.
-      </p>
+      <div className="mt-3 flex items-start gap-3 rounded-xl border border-danger/30 bg-danger-muted p-3">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden="true" />
+        <p className="text-sm text-slate-200">
+          Are you sure you want to delete <span className="font-medium text-white">{vehicleName}</span>?
+          This action cannot be undone.
+        </p>
+      </div>
 
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3 text-sm text-danger">{error}</p>}
 
       <div className="mt-6 flex justify-end gap-3">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
+          className="rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-surface-200 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Cancel
         </button>
@@ -53,8 +58,9 @@ export default function ConfirmDeleteModal({
           type="button"
           onClick={handleConfirm}
           disabled={loading}
-          className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-lg bg-danger px-4 py-2 text-sm font-semibold text-white transition-colors hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
         >
+          {loading && <Spinner />}
           {loading ? 'Deleting…' : 'Delete'}
         </button>
       </div>

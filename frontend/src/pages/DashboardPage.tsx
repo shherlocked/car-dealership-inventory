@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Car, Layers, Plus, PackageCheck } from 'lucide-react';
 import {
   createVehicle,
   deleteVehicle,
@@ -13,6 +14,7 @@ import VehicleFilters from '../components/VehicleFilters';
 import VehicleFormModal from '../components/VehicleFormModal';
 import VehicleGrid from '../components/VehicleGrid';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useVehicles } from '../hooks/useVehicles';
 import type { Vehicle } from '../types';
 
@@ -24,17 +26,23 @@ type ModalState =
   | null;
 
 /**
- * Inventory dashboard: header with result count, filters and the vehicle grid.
- * Admins can add, edit, restock and delete vehicles through modals.
+ * Inventory dashboard: hero banner with stats strip, sticky filters and the
+ * vehicle grid. Admins can add, edit, restock and delete through modals.
+ * Success feedback is delivered through toasts.
  */
 export default function DashboardPage() {
   const { vehicles, loading, error, applyFilters, refresh, replaceVehicle } = useVehicles();
   const { isAdmin } = useAuth();
+  const { toast } = useToast();
   const [modal, setModal] = useState<ModalState>(null);
-  const [confirmation, setConfirmation] = useState<string | null>(null);
 
   const categories = useMemo(
     () => Array.from(new Set(vehicles.map((vehicle) => vehicle.category))).sort(),
+    [vehicles],
+  );
+
+  const inStock = useMemo(
+    () => vehicles.filter((vehicle) => vehicle.quantity > 0).length,
     [vehicles],
   );
 
@@ -42,14 +50,10 @@ export default function DashboardPage() {
     void applyFilters({});
   }
 
-  function notify(message: string) {
-    setConfirmation(message);
-  }
-
   async function handleAdd(data: CreateVehicleInput | UpdateVehicleInput) {
     await createVehicle(data as CreateVehicleInput);
     setModal(null);
-    notify(`${data.make} ${data.model} added`);
+    toast(`${data.make} ${data.model} added`);
     await refresh();
   }
 
@@ -57,13 +61,13 @@ export default function DashboardPage() {
     const updated = await updateVehicle(vehicle.id, data as UpdateVehicleInput);
     replaceVehicle(updated);
     setModal(null);
-    notify(`${updated.make} ${updated.model} updated`);
+    toast(`${updated.make} ${updated.model} updated`);
   }
 
   async function handleDelete(vehicle: Vehicle) {
     await deleteVehicle(vehicle.id);
     setModal(null);
-    notify(`${vehicle.make} ${vehicle.model} deleted`);
+    toast(`${vehicle.make} ${vehicle.model} deleted`);
     await refresh();
   }
 
@@ -71,34 +75,44 @@ export default function DashboardPage() {
     const updated = await restockVehicle(vehicle.id, quantity);
     replaceVehicle(updated);
     setModal(null);
-    notify(`${updated.make} ${updated.model} restocked`);
+    toast(`${updated.make} ${updated.model} restocked`);
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-baseline gap-2">
-          <h1 className="text-2xl font-semibold text-slate-900">Available vehicles</h1>
-          <p className="text-sm text-slate-500">
-            {vehicles.length} {vehicles.length === 1 ? 'vehicle' : 'vehicles'}
-          </p>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {/* Hero banner */}
+      <section className="relative overflow-hidden rounded-xl2 border border-line bg-gradient-to-br from-surface-raised via-surface to-canvas p-6 shadow-card sm:p-8">
+        <div className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full bg-accent-500/20 blur-3xl" />
+        <div className="relative flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-white sm:text-3xl">
+              The showroom floor
+            </h1>
+            <p className="mt-2 max-w-lg text-sm text-slate-400">
+              Every vehicle in inventory, ready to browse, filter and manage.
+            </p>
+          </div>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setModal({ type: 'add' })}
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-accent px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition-all hover:brightness-110"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add vehicle
+            </button>
+          )}
         </div>
-        {isAdmin && (
-          <button
-            type="button"
-            onClick={() => setModal({ type: 'add' })}
-            className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2"
-          >
-            Add vehicle
-          </button>
-        )}
-      </header>
 
-      <div aria-live="polite" className="mt-2 min-h-[1.25rem]">
-        {confirmation && <p className="text-sm text-emerald-700">{confirmation}</p>}
-      </div>
+        {/* Stats strip */}
+        <dl className="relative mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <Stat icon={<Car className="h-5 w-5 text-accent-400" aria-hidden="true" />} label="Total vehicles" value={String(vehicles.length)} />
+          <Stat icon={<PackageCheck className="h-5 w-5 text-ok" aria-hidden="true" />} label="In stock" value={String(inStock)} />
+          <Stat icon={<Layers className="h-5 w-5 text-warn" aria-hidden="true" />} label="Categories" value={String(categories.length)} />
+        </dl>
+      </section>
 
-      <div className="mt-4">
+      <div className="mt-6">
         <VehicleFilters categories={categories} onApply={(filters) => void applyFilters(filters)} />
       </div>
 
@@ -153,6 +167,26 @@ export default function DashboardPage() {
           onClose={() => setModal(null)}
         />
       )}
+    </div>
+  );
+}
+
+interface StatProps {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}
+
+function Stat({ icon, label, value }: StatProps) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-line bg-surface/70 px-4 py-3">
+      <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-200">
+        {icon}
+      </span>
+      <div>
+        <dd className="tabular-nums font-display text-xl font-bold text-white">{value}</dd>
+        <dt className="text-xs text-slate-400">{label}</dt>
+      </div>
     </div>
   );
 }

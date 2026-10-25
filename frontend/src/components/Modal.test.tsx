@@ -80,7 +80,7 @@ describe('Modal', () => {
     screen.getByRole('button', { name: 'Last' }).focus();
     await userEvent.tab();
 
-    expect(screen.getByRole('button', { name: 'First' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Close dialog' })).toHaveFocus();
   });
 
   it('returns focus to the trigger when closed', async () => {

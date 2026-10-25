@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import type { CreateVehicleInput, UpdateVehicleInput } from '../api/client';
 import type { Vehicle } from '../types';
 import Modal from './Modal';
+import Spinner from './Spinner';
 
 interface VehicleFormModalProps {
   mode: 'add' | 'edit';
@@ -59,7 +60,7 @@ function validate(values: {
 }
 
 const inputClass =
-  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500';
+  'mt-1.5 w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500';
 
 /**
  * Add/edit form for a vehicle, rendered inside an accessible modal.
@@ -119,7 +120,7 @@ export default function VehicleFormModal({
     <Modal title={isEdit ? 'Edit vehicle' : 'Add vehicle'} onClose={onClose}>
       <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
         <div>
-          <label htmlFor="vehicle-make" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="vehicle-make" className="block text-sm font-medium text-slate-300">
             Make
           </label>
           <input
@@ -129,11 +130,11 @@ export default function VehicleFormModal({
             onChange={(event) => setMake(event.target.value)}
             className={inputClass}
           />
-          {fieldErrors.make && <p className="mt-1 text-sm text-red-600">{fieldErrors.make}</p>}
+          {fieldErrors.make && <p className="mt-1.5 text-sm text-danger">{fieldErrors.make}</p>}
         </div>
 
         <div>
-          <label htmlFor="vehicle-model" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="vehicle-model" className="block text-sm font-medium text-slate-300">
             Model
           </label>
           <input
@@ -143,11 +144,11 @@ export default function VehicleFormModal({
             onChange={(event) => setModel(event.target.value)}
             className={inputClass}
           />
-          {fieldErrors.model && <p className="mt-1 text-sm text-red-600">{fieldErrors.model}</p>}
+          {fieldErrors.model && <p className="mt-1.5 text-sm text-danger">{fieldErrors.model}</p>}
         </div>
 
         <div>
-          <label htmlFor="vehicle-category" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="vehicle-category" className="block text-sm font-medium text-slate-300">
             Category
           </label>
           <input
@@ -164,13 +165,13 @@ export default function VehicleFormModal({
             ))}
           </datalist>
           {fieldErrors.category && (
-            <p className="mt-1 text-sm text-red-600">{fieldErrors.category}</p>
+            <p className="mt-1.5 text-sm text-danger">{fieldErrors.category}</p>
           )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="vehicle-price" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="vehicle-price" className="block text-sm font-medium text-slate-300">
               Price
             </label>
             <input
@@ -181,11 +182,11 @@ export default function VehicleFormModal({
               onChange={(event) => setPrice(event.target.value)}
               className={inputClass}
             />
-            {fieldErrors.price && <p className="mt-1 text-sm text-red-600">{fieldErrors.price}</p>}
+            {fieldErrors.price && <p className="mt-1.5 text-sm text-danger">{fieldErrors.price}</p>}
           </div>
 
           <div>
-            <label htmlFor="vehicle-quantity" className="block text-sm font-medium text-slate-700">
+            <label htmlFor="vehicle-quantity" className="block text-sm font-medium text-slate-300">
               Quantity
             </label>
             <input
@@ -197,27 +198,28 @@ export default function VehicleFormModal({
               className={inputClass}
             />
             {fieldErrors.quantity && (
-              <p className="mt-1 text-sm text-red-600">{fieldErrors.quantity}</p>
+              <p className="mt-1.5 text-sm text-danger">{fieldErrors.quantity}</p>
             )}
           </div>
         </div>
 
-        {serverError && <p className="text-sm text-red-600">{serverError}</p>}
+        {serverError && <p className="text-sm text-danger">{serverError}</p>}
 
         <div className="flex justify-end gap-3 pt-2">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
+            className="rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-surface-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-accent px-4 py-2 text-sm font-semibold text-white shadow-glow transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
+            {loading && <Spinner />}
             {loading ? 'Saving…' : isEdit ? 'Save changes' : 'Add vehicle'}
           </button>
         </div>

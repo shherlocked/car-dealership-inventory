@@ -1,5 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { X } from 'lucide-react';
 
 interface ModalProps {
   title: string;
@@ -78,7 +79,7 @@ export default function Modal({ title, onClose, children }: ModalProps) {
       data-testid="modal-backdrop"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-slate-900/50" aria-hidden="true" />
+      <div className="absolute inset-0 bg-canvas/80 backdrop-blur-sm" aria-hidden="true" />
       <div
         ref={dialogRef}
         role="dialog"
@@ -86,11 +87,21 @@ export default function Modal({ title, onClose, children }: ModalProps) {
         aria-labelledby="modal-title"
         tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
-        className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-lg focus:outline-none"
+        className="relative w-full max-w-md rounded-xl2 border border-line bg-surface-raised p-6 shadow-modal animate-modal-in focus:outline-none"
       >
-        <h2 id="modal-title" className="text-lg font-semibold text-slate-900">
-          {title}
-        </h2>
+        <div className="flex items-start justify-between gap-4">
+          <h2 id="modal-title" className="font-display text-lg font-semibold text-white">
+            {title}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close dialog"
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-surface-200 hover:text-white"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
         {children}
       </div>
     </div>,

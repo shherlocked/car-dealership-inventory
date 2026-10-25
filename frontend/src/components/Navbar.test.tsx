@@ -40,7 +40,7 @@ describe('Navbar', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Car Dealership')).toBeInTheDocument();
+    expect(screen.getByText('Showroom')).toBeInTheDocument();
   });
 
   it('shows the user email and a logout button when logged in', async () => {
@@ -66,8 +66,8 @@ describe('Navbar', () => {
 
     const badge = screen.getByText('User');
     expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-slate-100');
-    expect(badge.className).toContain('text-slate-700');
+    expect(badge.className).toContain('bg-surface-200');
+    expect(badge.className).toContain('text-slate-300');
   });
 
   it('shows an accent "Admin" badge for an admin', () => {
@@ -80,8 +80,8 @@ describe('Navbar', () => {
 
     const badge = screen.getByText('Admin');
     expect(badge).toBeInTheDocument();
-    expect(badge.className).toContain('bg-accent-100');
-    expect(badge.className).toContain('text-accent-700');
+    expect(badge.className).toContain('bg-accent-500/15');
+    expect(badge.className).toContain('text-accent-300');
   });
 
   it('does not show a role badge when logged out', () => {

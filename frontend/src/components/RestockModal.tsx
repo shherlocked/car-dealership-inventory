@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
+import { PackagePlus } from 'lucide-react';
 import Modal from './Modal';
+import Spinner from './Spinner';
 
 interface RestockModalProps {
   vehicleName: string;
@@ -48,13 +50,16 @@ export default function RestockModal({
 
   return (
     <Modal title="Restock vehicle" onClose={onClose}>
-      <p className="mt-3 text-sm text-slate-600">
-        {vehicleName} — current stock: <span className="font-medium">{currentStock}</span>
-      </p>
+      <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-surface p-3">
+        <PackagePlus className="h-5 w-5 text-accent-400" aria-hidden="true" />
+        <p className="text-sm text-slate-300">
+          {vehicleName} — current stock: <span className="font-semibold text-white">{currentStock}</span>
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
         <div>
-          <label htmlFor="restock-quantity" className="block text-sm font-medium text-slate-700">
+          <label htmlFor="restock-quantity" className="block text-sm font-medium text-slate-300">
             Quantity to add
           </label>
           <input
@@ -63,9 +68,9 @@ export default function RestockModal({
             min="1"
             value={quantity}
             onChange={(event) => setQuantity(event.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+            className="mt-1.5 w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-slate-100 transition-colors focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
           />
-          {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-1.5 text-sm text-danger">{error}</p>}
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
@@ -73,15 +78,16 @@ export default function RestockModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
+            className="rounded-lg border border-line bg-surface px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-surface-200 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="rounded-md bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-accent px-4 py-2 text-sm font-semibold text-white shadow-glow transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
           >
+            {loading && <Spinner />}
             {loading ? 'Restocking…' : 'Restock'}
           </button>
         </div>

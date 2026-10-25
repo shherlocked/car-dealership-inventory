@@ -25,6 +25,14 @@ vi.mock('../context/AuthContext', () => ({
   useAuth: vi.fn(),
 }));
 
+const { toast } = vi.hoisted(() => ({
+  toast: vi.fn(),
+}));
+
+vi.mock('../context/ToastContext', () => ({
+  useToast: () => ({ toast }),
+}));
+
 const mockUseAuth = vi.mocked(useAuth);
 
 const vehicle = (id: number, overrides: Partial<Vehicle> = {}): Vehicle => ({
@@ -56,6 +64,7 @@ describe('DashboardPage', () => {
     vi.mocked(deleteVehicle).mockReset();
     vi.mocked(restockVehicle).mockReset();
     setAuth(false);
+    toast.mockReset();
   });
 
   it('renders vehicles with a result count', async () => {
@@ -63,10 +72,11 @@ describe('DashboardPage', () => {
 
     render(<DashboardPage />);
 
-    expect(screen.getByRole('heading', { name: 'Available vehicles' })).toBeInTheDocument();
-    expect(await screen.findByText('Toyota Model 1')).toBeInTheDocument();
-    expect(screen.getByText('Toyota Model 2')).toBeInTheDocument();
-    expect(screen.getByText('2 vehicles')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'The showroom floor' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Model 1' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Model 2' })).toBeInTheDocument();
+    const totalStat = screen.getByText('Total vehicles').parentElement as HTMLElement;
+    expect(within(totalStat).getByText('2')).toBeInTheDocument();
   });
 
   it('shows the empty state with a clear filters action', async () => {
@@ -88,7 +98,7 @@ describe('DashboardPage', () => {
     expect(await screen.findByText(/network error/i)).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: /retry/i }));
 
-    expect(await screen.findByText('Toyota Model 1')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Model 1' })).toBeInTheDocument();
   });
 
   it('calls the search endpoint when filters are applied', async () => {
@@ -96,7 +106,7 @@ describe('DashboardPage', () => {
     vi.mocked(searchVehicles).mockResolvedValue([vehicle(1)]);
 
     render(<DashboardPage />);
-    await screen.findByText('Toyota Model 1');
+    await screen.findByRole('heading', { name: 'Model 1' });
 
     await userEvent.type(screen.getByLabelText(/make/i), 'Toy');
 
@@ -108,7 +118,7 @@ describe('DashboardPage', () => {
     vi.mocked(getVehicles).mockResolvedValue([vehicle(1)]);
 
     render(<DashboardPage />);
-    await screen.findByText('Toyota Model 1');
+    await screen.findByRole('heading', { name: 'Model 1' });
 
     expect(screen.queryByRole('button', { name: /add vehicle/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /edit toyota/i })).not.toBeInTheDocument();
@@ -116,7 +126,7 @@ describe('DashboardPage', () => {
     expect(screen.queryByRole('button', { name: /delete toyota/i })).not.toBeInTheDocument();
   });
 
-  it('adds a vehicle and shows an aria-live confirmation', async () => {
+  it('adds a vehicle and shows a toast confirmation', async () => {
     setAuth(true);
     const created = vehicle(2, { make: 'Honda', model: 'Civic' });
     let inventory: Vehicle[] = [vehicle(1)];
@@ -127,7 +137,7 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    await screen.findByText('Toyota Model 1');
+    await screen.findByRole('heading', { name: 'Model 1' });
 
     await userEvent.click(screen.getByRole('button', { name: /add vehicle/i }));
 
@@ -148,8 +158,8 @@ describe('DashboardPage', () => {
         quantity: 3,
       }),
     );
-    expect(await screen.findByText('Honda Civic')).toBeInTheDocument();
-    expect(screen.getByText('Honda Civic added')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Civic' })).toBeInTheDocument();
+    await waitFor(() => expect(toast).toHaveBeenCalledWith('Honda Civic added'));
   });
 
   it('deletes a vehicle and removes its card', async () => {
@@ -161,14 +171,14 @@ describe('DashboardPage', () => {
     });
 
     render(<DashboardPage />);
-    await screen.findByText('Toyota Model 1');
+    await screen.findByRole('heading', { name: 'Model 1' });
 
     await userEvent.click(screen.getByRole('button', { name: /delete toyota model 1/i }));
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => expect(deleteVehicle).toHaveBeenCalledWith(1));
-    expect(await screen.findByText('Toyota Model 1 deleted')).toBeInTheDocument();
-    expect(screen.queryByText('Toyota Model 1')).not.toBeInTheDocument();
+    await waitFor(() => expect(toast).toHaveBeenCalledWith('Toyota Model 1 deleted'));
+    await waitFor(() => expect(screen.queryByRole('heading', { name: 'Model 1' })).not.toBeInTheDocument());
   });
 
   it('restocks a vehicle and updates its stock', async () => {
@@ -178,7 +188,7 @@ describe('DashboardPage', () => {
     vi.mocked(restockVehicle).mockResolvedValue(restocked);
 
     render(<DashboardPage />);
-    await screen.findByText('Toyota Model 1');
+    await screen.findByRole('heading', { name: 'Model 1' });
 
     await userEvent.click(screen.getByRole('button', { name: /restock toyota model 1/i }));
 
@@ -188,6 +198,6 @@ describe('DashboardPage', () => {
 
     await waitFor(() => expect(restockVehicle).toHaveBeenCalledWith(1, 4));
     expect(await screen.findByText('6 in stock')).toBeInTheDocument();
-    expect(screen.getByText('Toyota Model 1 restocked')).toBeInTheDocument();
+    await waitFor(() => expect(toast).toHaveBeenCalledWith('Toyota Model 1 restocked'));
   });
 });

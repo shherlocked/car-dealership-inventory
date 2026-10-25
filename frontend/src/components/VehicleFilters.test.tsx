@@ -56,7 +56,7 @@ describe('VehicleFilters', () => {
   it('derives category options from the provided categories', () => {
     render(<VehicleFilters categories={['Sedan', 'SUV']} onApply={onApply} />);
 
-    expect(screen.getByRole('option', { name: 'Sedan' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'SUV' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sedan' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'SUV' })).toBeInTheDocument();
   });
 });
