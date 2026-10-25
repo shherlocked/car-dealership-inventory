@@ -2,6 +2,7 @@ import cors from 'cors';
 import express, { type Express } from 'express';
 import { errorHandler } from './middleware/errorHandler';
 import { createAuthRouter } from './routes/authRoutes';
+import { createVehicleRouter } from './routes/vehicleRoutes';
 
 /**
  * Builds and returns the configured Express application.
@@ -18,6 +19,7 @@ export function createApp(): Express {
   });
 
   app.use('/api/auth', createAuthRouter());
+  app.use('/api/vehicles', createVehicleRouter());
 
   app.use(errorHandler);
 
