@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "migrate": "prisma migrate dev",
-    "migrate:test": "dotenv -e .env.test -- prisma migrate deploy"
+    "migrate:test": "dotenv -e .env.test -- prisma migrate deploy",
+    "seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
