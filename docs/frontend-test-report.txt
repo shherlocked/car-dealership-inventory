@@ -1,0 +1,59 @@
+
+ RUN  v2.1.9 /home/shrinivas/car-dealership/car-dealership-inventory/frontend
+
+ ✓ src/api/client.test.ts (16 tests) 75ms
+ ✓ src/context/AuthContext.test.tsx (6 tests) 1105ms
+   ✓ AuthContext > login stores the token and user in state and localStorage 414ms
+   ✓ AuthContext > logout clears token and user from state and localStorage 511ms
+ ✓ src/hooks/useVehicles.test.ts (7 tests) 421ms
+ ✓ src/pages/DashboardPage.test.tsx (8 tests) 1899ms
+   ✓ DashboardPage > calls the search endpoint when filters are applied 447ms
+   ✓ DashboardPage > adds a vehicle and shows a toast confirmation 388ms
+   ✓ DashboardPage > restocks a vehicle and updates its stock 389ms
+stderr | src/pages/LoginPage.test.tsx > LoginPage > shows validation errors for an invalid email and a short password
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/components/VehicleFormModal.test.tsx (5 tests) 2284ms
+   ✓ VehicleFormModal > shows required-field errors when submitting an empty form 560ms
+   ✓ VehicleFormModal > validates price and quantity and blocks submission 499ms
+   ✓ VehicleFormModal > submits the full payload when adding 319ms
+   ✓ VehicleFormModal > shows the server error inside the modal 801ms
+ ✓ src/components/VehicleCard.test.tsx (6 tests) 555ms
+   ✓ VehicleCard > disables the Purchase button when quantity is 0 300ms
+ ✓ src/pages/LoginPage.test.tsx (6 tests) 3244ms
+   ✓ LoginPage > shows validation errors for an invalid email and a short password 720ms
+   ✓ LoginPage > calls the API on valid submit 1277ms
+   ✓ LoginPage > shows a server error when the API rejects 481ms
+   ✓ LoginPage > disables the submit button while loading 329ms
+   ✓ LoginPage > navigates to / after a successful login 413ms
+ ✓ src/components/Modal.test.tsx (5 tests) 496ms
+stderr | src/pages/RegisterPage.test.tsx > RegisterPage > shows a validation error when the passwords do not match
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+stderr | src/components/Navbar.test.tsx > Navbar > shows the app name
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/components/Navbar.test.tsx (6 tests) 346ms
+ ✓ src/pages/RegisterPage.test.tsx (4 tests) 1500ms
+   ✓ RegisterPage > shows a validation error when the passwords do not match 715ms
+   ✓ RegisterPage > calls the API on valid submit and redirects to /login 373ms
+   ✓ RegisterPage > shows a server error when the API rejects 397ms
+stderr | src/components/ProtectedRoute.test.tsx > ProtectedRoute > renders children when a token is present
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/components/ProtectedRoute.test.tsx (4 tests) 111ms
+ ✓ src/components/RestockModal.test.tsx (6 tests) 916ms
+ ✓ src/components/ConfirmDeleteModal.test.tsx (4 tests) 499ms
+ ✓ src/components/VehicleFilters.test.tsx (4 tests) 371ms
+ ✓ src/components/VehicleCard.admin.test.tsx (2 tests) 206ms
+ ✓ src/types.test.ts (2 tests) 12ms
+
+ Test Files  16 passed (16)
+      Tests  91 passed (91)
+   Start at  16:29:06
+   Duration  19.14s (transform 3.06s, setup 3.52s, collect 12.99s, tests 14.04s, environment 14.37s, prepare 2.60s)
+
