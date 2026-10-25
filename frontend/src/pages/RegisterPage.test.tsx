@@ -4,16 +4,21 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import RegisterPage from './RegisterPage';
 
-const register = vi.fn();
+const { register, useAuth } = vi.hoisted(() => ({
+  register: vi.fn(),
+  useAuth: vi.fn(),
+}));
 
 vi.mock('../context/AuthContext', () => ({
-  useAuth: () => ({ register }),
+  useAuth: () => useAuth(),
 }));
 
 describe('RegisterPage', () => {
   beforeEach(() => {
     register.mockReset();
     register.mockResolvedValue(undefined);
+    useAuth.mockReset();
+    useAuth.mockReturnValue({ register, token: null });
   });
 
   function renderPage() {
@@ -22,6 +27,7 @@ describe('RegisterPage', () => {
         <Routes>
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<div>Login page</div>} />
+          <Route path="/" element={<div>Dashboard</div>} />
         </Routes>
       </MemoryRouter>,
     );
@@ -58,5 +64,13 @@ describe('RegisterPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /register/i }));
 
     expect(await screen.findByText('Email is already registered')).toBeInTheDocument();
+  });
+
+  it('redirects to / instead of the form when a token is already present', async () => {
+    useAuth.mockReturnValue({ register, token: 'jwt-token' });
+    renderPage();
+
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /register/i })).not.toBeInTheDocument();
   });
 });

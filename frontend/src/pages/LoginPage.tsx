@@ -1,19 +1,25 @@
 import { useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateEmail, validatePassword } from '../utils/validation';
 
 /**
  * Login page. Client-side validation, a loading state and server error
- * rendering wrapped in a centered card.
+ * rendering wrapped in a centered card. Authenticated users are redirected
+ * to the dashboard, and a successful login replaces /login in history.
  */
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, token } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -30,6 +36,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email.trim(), password);
+      navigate('/', { replace: true });
     } catch (error) {
       setServerError(error instanceof Error ? error.message : 'Something went wrong');
     } finally {

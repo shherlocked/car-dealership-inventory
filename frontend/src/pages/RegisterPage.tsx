@@ -1,14 +1,15 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { validateEmail, validatePassword } from '../utils/validation';
 
 /**
  * Registration page. Validates the email, password length and confirmation,
  * then creates the account and redirects to /login (registering does not log in).
+ * Authenticated users are redirected straight to the dashboard.
  */
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, token } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,6 +21,10 @@ export default function RegisterPage() {
   }>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
