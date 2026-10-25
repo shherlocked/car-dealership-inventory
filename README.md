@@ -237,7 +237,7 @@ It also needed supervision, and these are the cases where it did:
 
 My main takeaways: green tests prove the code matches the tests, not that the product works, so I always checked in the browser too. Prompts need to state the behaviour completely, since the AI does exactly what is written. And the AI's summary is a claim to verify, not evidence.
 
-AI chat logs are in [`PROMPTS.md`](PROMPTS.md) and in `prompts-log/` (raw Roo Code task exports, unedited). Every AI-assisted commit carries a `Co-authored-by` trailer.
+AI chat logs are in [`PROMPTS.md`](PROMPTS.md) and in `prompts-log/`. The Roo Code task exports are raw and unedited. The planning chat with Claude (`00-planning-chat-claude.md`) is an excerpt: whole exchanges about API billing and model-provider setup are omitted and marked with `[omitted: ...]` lines, and nothing inside the remaining messages was edited. Every AI-assisted commit carries a `Co-authored-by` trailer.
 
 ---
 
