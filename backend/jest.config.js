@@ -7,6 +7,8 @@ module.exports = {
   setupFiles: ['<rootDir>/tests/setup/env.ts'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup/resetDb.ts'],
   clearMocks: true,
+  // Suites share one SQLite test database, so run them serially.
+  maxWorkers: 1,
   collectCoverage: true,
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: ['src/**/*.ts', '!src/server.ts', '!src/**/*.d.ts'],
