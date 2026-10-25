@@ -1,16 +1,23 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { User } from '../types';
 import { AuthProvider, useAuth } from './AuthContext';
 
+const { navigate } = vi.hoisted(() => ({ navigate: vi.fn() }));
+
 vi.mock('../api/client', () => ({
   login: vi.fn(),
   register: vi.fn(),
+  setUnauthorizedHandler: vi.fn(),
   TOKEN_KEY: 'token',
 }));
 
-import { login, register } from '../api/client';
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => navigate,
+}));
+
+import { login, register, setUnauthorizedHandler } from '../api/client';
 
 const USER_KEY = 'user';
 
@@ -44,6 +51,8 @@ describe('AuthContext', () => {
     localStorage.clear();
     vi.mocked(login).mockReset();
     vi.mocked(register).mockReset();
+    vi.mocked(setUnauthorizedHandler).mockReset();
+    navigate.mockReset();
   });
 
   it('starts with no token and no user', () => {
@@ -99,5 +108,26 @@ describe('AuthContext', () => {
     await waitFor(() => expect(register).toHaveBeenCalledWith('a@example.com', 'password123'));
     expect(screen.getByTestId('token')).toHaveTextContent('none');
     expect(screen.getByTestId('user')).toHaveTextContent('none');
+  });
+
+  it('registers a 401 handler that clears the session and navigates to /login', async () => {
+    vi.mocked(login).mockResolvedValue({ token: 'jwt-token', user });
+
+    renderWithProvider();
+    await userEvent.click(screen.getByRole('button', { name: 'login' }));
+    await waitFor(() => expect(screen.getByTestId('token')).toHaveTextContent('jwt-token'));
+
+    expect(setUnauthorizedHandler).toHaveBeenCalledTimes(1);
+    const handler = vi.mocked(setUnauthorizedHandler).mock.calls[0][0] as () => void;
+
+    act(() => {
+      handler();
+    });
+
+    expect(screen.getByTestId('token')).toHaveTextContent('none');
+    expect(screen.getByTestId('user')).toHaveTextContent('none');
+    expect(localStorage.getItem('token')).toBeNull();
+    expect(localStorage.getItem(USER_KEY)).toBeNull();
+    expect(navigate).toHaveBeenCalledWith('/login');
   });
 });

@@ -1,5 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { login, register, TOKEN_KEY } from './client';
+import {
+  getVehicles,
+  login,
+  purchaseVehicle,
+  register,
+  searchVehicles,
+  setUnauthorizedHandler,
+  TOKEN_KEY,
+} from './client';
 
 const okResponse = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), {
@@ -14,6 +22,7 @@ describe('api client', () => {
   });
 
   afterEach(() => {
+    setUnauthorizedHandler(null);
     vi.unstubAllGlobals();
   });
 
@@ -81,5 +90,87 @@ describe('api client', () => {
     const result = await login('a@example.com', 'password123');
 
     expect(result).toBeUndefined();
+  });
+
+  it('getVehicles fetches the full inventory from /api/vehicles', async () => {
+    const vehicles = [
+      { id: 1, make: 'Toyota', model: 'Corolla', category: 'Sedan', price: 20000, quantity: 2 },
+    ];
+    vi.mocked(fetch).mockResolvedValue(okResponse(vehicles));
+
+    const result = await getVehicles();
+
+    expect(result).toEqual(vehicles);
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles',
+      expect.anything(),
+    );
+  });
+
+  it('searchVehicles builds a query string from the provided filters', async () => {
+    vi.mocked(fetch).mockResolvedValue(okResponse([]));
+
+    await searchVehicles({ make: 'Toy', minPrice: 10000, maxPrice: 30000 });
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles/search?make=Toy&minPrice=10000&maxPrice=30000',
+      expect.anything(),
+    );
+  });
+
+  it('searchVehicles omits unset filters from the query string', async () => {
+    vi.mocked(fetch).mockResolvedValue(okResponse([]));
+
+    await searchVehicles({});
+
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles/search',
+      expect.anything(),
+    );
+  });
+
+  it('purchaseVehicle posts to the purchase endpoint and returns the updated vehicle', async () => {
+    const updated = {
+      id: 7,
+      make: 'Toyota',
+      model: 'Corolla',
+      category: 'Sedan',
+      price: 20000,
+      quantity: 1,
+    };
+    vi.mocked(fetch).mockResolvedValue(okResponse(updated));
+
+    const result = await purchaseVehicle(7);
+
+    expect(result).toEqual(updated);
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles/7/purchase',
+      expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('invokes the registered unauthorized handler when an authenticated request returns 401', async () => {
+    localStorage.setItem(TOKEN_KEY, 'abc');
+    const handler = vi.fn();
+    setUnauthorizedHandler(handler);
+    vi.mocked(fetch).mockResolvedValue(
+      okResponse({ error: { message: 'Unauthorized' } }, 401),
+    );
+
+    await expect(getVehicles()).rejects.toThrow('Unauthorized');
+
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it('does not invoke the unauthorized handler for a 401 without a token', async () => {
+    const handler = vi.fn();
+    setUnauthorizedHandler(handler);
+    vi.mocked(fetch).mockResolvedValue(
+      okResponse({ error: { message: 'Unauthorized' } }, 401),
+    );
+
+    await expect(login('a@example.com', 'wrong')).rejects.toThrow('Unauthorized');
+
+    expect(handler).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,4 @@
-import type { User } from '../types';
+import type { User, Vehicle, VehicleFilters } from '../types';
 
 /** Key under which the auth token is stored in localStorage. */
 export const TOKEN_KEY = 'token';
@@ -41,10 +41,28 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!response.ok) {
     const body = (await parseBody(response)) as { error?: { message?: string } } | undefined;
+    // Only authenticated requests should trigger the global 401 handler.
+    if (response.status === 401 && token) {
+      unauthorizedHandler?.();
+    }
     throw new Error(body?.error?.message ?? `Request failed with status ${response.status}`);
   }
 
   return (await parseBody(response)) as T;
+}
+
+/** Callback invoked when an authenticated request receives a 401. */
+type UnauthorizedHandler = () => void;
+
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+/**
+ * Registers (or clears, with null) the global 401 handler.
+ * The AuthProvider registers this so expired sessions can clear state and
+ * redirect to /login without the client importing the router.
+ */
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null): void {
+  unauthorizedHandler = handler;
 }
 
 /** Result of a successful login: a signed token plus the user's public profile. */
@@ -67,4 +85,27 @@ export function login(email: string, password: string): Promise<LoginResult> {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
+}
+
+/** Fetches the full inventory, including vehicles with quantity 0. */
+export function getVehicles(): Promise<Vehicle[]> {
+  return request<Vehicle[]>('/api/vehicles');
+}
+
+/** Searches vehicles with the provided filters; unset filters are omitted. */
+export function searchVehicles(filters: VehicleFilters = {}): Promise<Vehicle[]> {
+  const params = new URLSearchParams();
+  if (filters.make !== undefined) params.set('make', filters.make);
+  if (filters.model !== undefined) params.set('model', filters.model);
+  if (filters.category !== undefined) params.set('category', filters.category);
+  if (filters.minPrice !== undefined) params.set('minPrice', String(filters.minPrice));
+  if (filters.maxPrice !== undefined) params.set('maxPrice', String(filters.maxPrice));
+
+  const query = params.toString();
+  return request<Vehicle[]>(`/api/vehicles/search${query ? `?${query}` : ''}`);
+}
+
+/** Purchases a vehicle by id, returning the updated vehicle. */
+export function purchaseVehicle(id: number): Promise<Vehicle> {
+  return request<Vehicle>(`/api/vehicles/${id}/purchase`, { method: 'POST' });
 }

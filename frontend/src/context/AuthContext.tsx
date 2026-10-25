@@ -2,11 +2,18 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
-import { login as apiLogin, register as apiRegister, TOKEN_KEY } from '../api/client';
+import { useNavigate } from 'react-router-dom';
+import {
+  login as apiLogin,
+  register as apiRegister,
+  setUnauthorizedHandler,
+  TOKEN_KEY,
+} from '../api/client';
 import type { User } from '../types';
 
 const USER_KEY = 'user';
@@ -49,6 +56,7 @@ function readPersistedToken(): string | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() => readPersistedToken());
   const [user, setUser] = useState<User | null>(() => readPersistedUser());
+  const navigate = useNavigate();
 
   const login = useCallback(async (email: string, password: string) => {
     const result = await apiLogin(email, password);
@@ -77,6 +85,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
   }, []);
+
+  // Register a global 401 handler so expired sessions clear state and redirect.
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      logout();
+      navigate('/login');
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [logout, navigate]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

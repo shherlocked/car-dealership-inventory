@@ -14,3 +14,12 @@ export interface Vehicle {
   price: number;
   quantity: number;
 }
+
+/** Optional search filters accepted by the vehicles search endpoint. */
+export interface VehicleFilters {
+  make?: string;
+  model?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+}
