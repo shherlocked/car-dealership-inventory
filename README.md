@@ -16,15 +16,11 @@ A full-stack car dealership inventory application built as a TDD take-home for I
 |---|---|
 | ![Login](docs/screenshots/01-login.png) | ![Register](docs/screenshots/02-register.png) |
 
-| Dashboard (user) |
+| Dashboard (user) | Admin dashboard |
 |---|---|
-| ![Dashboard](docs/screenshots/03-dashboard.png) |
+| ![Dashboard](docs/screenshots/03-dashboard.png) | ![Admin dashboard](docs/screenshots/04-admin-dashboard.png) |
 
-| Admin dashboard |
-|---|---|
-| ![Admin dashboard](docs/screenshots/04-admin-dashboard.png) |
-
-| Add vehicle (validation) | Mobile layout |
+| Add vehicle (admin) | Mobile layout |
 |---|---|
 | ![Add vehicle](docs/screenshots/05-add-vehicle.png) | ![Mobile](docs/screenshots/06-mobile.png) |
 
