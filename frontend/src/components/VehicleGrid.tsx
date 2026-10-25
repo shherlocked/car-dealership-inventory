@@ -9,6 +9,9 @@ interface VehicleGridProps {
   onRetry: () => void;
   onPurchased: (updated: Vehicle) => void;
   onError: () => void;
+  onEdit?: (vehicle: Vehicle) => void;
+  onDelete?: (vehicle: Vehicle) => void;
+  onRestock?: (vehicle: Vehicle) => void;
 }
 
 /**
@@ -23,6 +26,9 @@ export default function VehicleGrid({
   onRetry,
   onPurchased,
   onError,
+  onEdit,
+  onDelete,
+  onRestock,
 }: VehicleGridProps) {
   if (loading) {
     return (
@@ -76,6 +82,9 @@ export default function VehicleGrid({
           vehicle={vehicle}
           onPurchased={onPurchased}
           onError={onError}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onRestock={onRestock}
         />
       ))}
     </div>

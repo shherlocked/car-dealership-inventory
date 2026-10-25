@@ -18,6 +18,15 @@ export default function Navbar() {
         {user ? (
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-600">{user.email}</span>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                user.role === 'ADMIN'
+                  ? 'bg-accent-100 text-accent-700'
+                  : 'bg-slate-100 text-slate-700'
+              }`}
+            >
+              {user.role === 'ADMIN' ? 'Admin' : 'User'}
+            </span>
             <button
               onClick={logout}
               className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-slate-700"

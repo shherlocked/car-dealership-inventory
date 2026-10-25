@@ -56,6 +56,46 @@ describe('Navbar', () => {
     expect(logout).toHaveBeenCalledOnce();
   });
 
+  it('shows a slate "User" badge for a regular user', () => {
+    setAuth('jwt', { id: 1, email: 'a@example.com', role: 'USER' });
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    );
+
+    const badge = screen.getByText('User');
+    expect(badge).toBeInTheDocument();
+    expect(badge.className).toContain('bg-slate-100');
+    expect(badge.className).toContain('text-slate-700');
+  });
+
+  it('shows an accent "Admin" badge for an admin', () => {
+    setAuth('jwt', { id: 1, email: 'a@example.com', role: 'ADMIN' });
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    );
+
+    const badge = screen.getByText('Admin');
+    expect(badge).toBeInTheDocument();
+    expect(badge.className).toContain('bg-accent-100');
+    expect(badge.className).toContain('text-accent-700');
+  });
+
+  it('does not show a role badge when logged out', () => {
+    setAuth(null, null);
+    render(
+      <MemoryRouter>
+        <Navbar />
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+    expect(screen.queryByText('User')).not.toBeInTheDocument();
+  });
+
   it('shows login and register links when logged out', () => {
     setAuth(null, null);
     render(

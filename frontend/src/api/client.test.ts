@@ -1,12 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  createVehicle,
+  deleteVehicle,
   getVehicles,
   login,
   purchaseVehicle,
   register,
+  restockVehicle,
   searchVehicles,
   setUnauthorizedHandler,
   TOKEN_KEY,
+  updateVehicle,
 } from './client';
 
 const okResponse = (body: unknown, status = 200): Response =>
@@ -146,6 +150,99 @@ describe('api client', () => {
     expect(fetch).toHaveBeenCalledWith(
       'http://localhost:4000/api/vehicles/7/purchase',
       expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('createVehicle posts the vehicle payload and returns the created vehicle', async () => {
+    const created = {
+      id: 9,
+      make: 'Honda',
+      model: 'Civic',
+      category: 'Sedan',
+      price: 22000,
+      quantity: 3,
+    };
+    vi.mocked(fetch).mockResolvedValue(okResponse(created, 201));
+
+    const result = await createVehicle({
+      make: 'Honda',
+      model: 'Civic',
+      category: 'Sedan',
+      price: 22000,
+      quantity: 3,
+    });
+
+    expect(result).toEqual(created);
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          make: 'Honda',
+          model: 'Civic',
+          category: 'Sedan',
+          price: 22000,
+          quantity: 3,
+        }),
+      }),
+    );
+  });
+
+  it('updateVehicle PUTs a partial payload and returns the updated vehicle', async () => {
+    const updated = {
+      id: 7,
+      make: 'Toyota',
+      model: 'Corolla',
+      category: 'Sedan',
+      price: 21000,
+      quantity: 1,
+    };
+    vi.mocked(fetch).mockResolvedValue(okResponse(updated));
+
+    const result = await updateVehicle(7, { price: 21000 });
+
+    expect(result).toEqual(updated);
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles/7',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({ price: 21000 }),
+      }),
+    );
+  });
+
+  it('deleteVehicle DELETEs the vehicle and resolves without a body', async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 204 }));
+
+    const result = await deleteVehicle(7);
+
+    expect(result).toBeUndefined();
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles/7',
+      expect.objectContaining({ method: 'DELETE' }),
+    );
+  });
+
+  it('restockVehicle posts the restock quantity and returns the updated vehicle', async () => {
+    const updated = {
+      id: 7,
+      make: 'Toyota',
+      model: 'Corolla',
+      category: 'Sedan',
+      price: 20000,
+      quantity: 5,
+    };
+    vi.mocked(fetch).mockResolvedValue(okResponse(updated));
+
+    const result = await restockVehicle(7, 4);
+
+    expect(result).toEqual(updated);
+    expect(fetch).toHaveBeenCalledWith(
+      'http://localhost:4000/api/vehicles/7/restock',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ quantity: 4 }),
+      }),
     );
   });
 

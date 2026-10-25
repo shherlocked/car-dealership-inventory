@@ -1,5 +1,17 @@
 import type { User, Vehicle, VehicleFilters } from '../types';
 
+/** Fields required to create a vehicle, mirroring the backend create schema. */
+export interface CreateVehicleInput {
+  make: string;
+  model: string;
+  category: string;
+  price: number;
+  quantity: number;
+}
+
+/** A partial vehicle update; at least one field must be present. */
+export type UpdateVehicleInput = Partial<Omit<Vehicle, 'id'>>;
+
 /** Key under which the auth token is stored in localStorage. */
 export const TOKEN_KEY = 'token';
 
@@ -108,4 +120,33 @@ export function searchVehicles(filters: VehicleFilters = {}): Promise<Vehicle[]>
 /** Purchases a vehicle by id, returning the updated vehicle. */
 export function purchaseVehicle(id: number): Promise<Vehicle> {
   return request<Vehicle>(`/api/vehicles/${id}/purchase`, { method: 'POST' });
+}
+
+/** Creates a vehicle (admin only), returning the created vehicle. */
+export function createVehicle(data: CreateVehicleInput): Promise<Vehicle> {
+  return request<Vehicle>('/api/vehicles', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Partially updates a vehicle (admin only), returning the updated vehicle. */
+export function updateVehicle(id: number, data: UpdateVehicleInput): Promise<Vehicle> {
+  return request<Vehicle>(`/api/vehicles/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/** Deletes a vehicle (admin only). The backend responds 204 with no body. */
+export function deleteVehicle(id: number): Promise<void> {
+  return request<void>(`/api/vehicles/${id}`, { method: 'DELETE' });
+}
+
+/** Restocks a vehicle by a positive quantity (admin only), returning the updated vehicle. */
+export function restockVehicle(id: number, quantity: number): Promise<Vehicle> {
+  return request<Vehicle>(`/api/vehicles/${id}/restock`, {
+    method: 'POST',
+    body: JSON.stringify({ quantity }),
+  });
 }

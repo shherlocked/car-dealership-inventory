@@ -3,11 +3,17 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Vehicle } from '../types';
 import { purchaseVehicle } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import VehicleCard from './VehicleCard';
 
 vi.mock('../api/client', () => ({
   purchaseVehicle: vi.fn(),
 }));
+vi.mock('../context/AuthContext', () => ({
+  useAuth: vi.fn(),
+}));
+
+const mockUseAuth = vi.mocked(useAuth);
 
 const vehicle = (overrides: Partial<Vehicle> = {}): Vehicle => ({
   id: 1,
@@ -25,6 +31,15 @@ describe('VehicleCard', () => {
 
   beforeEach(() => {
     vi.mocked(purchaseVehicle).mockReset();
+    mockUseAuth.mockReset();
+    mockUseAuth.mockReturnValue({
+      user: { id: 1, email: 'user@example.com', role: 'USER' },
+      token: 'jwt',
+      isAdmin: false,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+    });
     onPurchased.mockReset();
     onError.mockReset();
   });

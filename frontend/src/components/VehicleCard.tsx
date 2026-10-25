@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { purchaseVehicle } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import type { Vehicle } from '../types';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
   onPurchased: (updated: Vehicle) => void;
   onError: () => void;
+  onEdit?: (vehicle: Vehicle) => void;
+  onDelete?: (vehicle: Vehicle) => void;
+  onRestock?: (vehicle: Vehicle) => void;
 }
 
 const priceFormatter = new Intl.NumberFormat('en-US', {
@@ -41,13 +45,27 @@ function stockLabel(quantity: number): string {
 
 /**
  * Presents a single vehicle with a gradient header, purchase action and
- * inline status messaging for confirmations and errors.
+ * inline status messaging for confirmations and errors. Admins additionally
+ * get Edit, Restock and Delete actions.
  */
-export default function VehicleCard({ vehicle, onPurchased, onError }: VehicleCardProps) {
+export default function VehicleCard({
+  vehicle,
+  onPurchased,
+  onError,
+  onEdit,
+  onDelete,
+  onRestock,
+}: VehicleCardProps) {
+  const { isAdmin } = useAuth();
   const [current, setCurrent] = useState(vehicle);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+
+  // Reflect parent-side updates (e.g. restock/edit replacing the vehicle).
+  useEffect(() => {
+    setCurrent(vehicle);
+  }, [vehicle]);
 
   async function handlePurchase() {
     setLoading(true);
@@ -97,6 +115,35 @@ export default function VehicleCard({ vehicle, onPurchased, onError }: VehicleCa
         >
           {stockLabel(current.quantity)}
         </p>
+
+        {isAdmin && (
+          <div className="mt-4 flex gap-2">
+            <button
+              type="button"
+              onClick={() => onEdit?.(current)}
+              aria-label={`Edit ${current.make} ${current.model}`}
+              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => onRestock?.(current)}
+              aria-label={`Restock ${current.make} ${current.model}`}
+              className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
+            >
+              Restock
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete?.(current)}
+              aria-label={`Delete ${current.make} ${current.model}`}
+              className="flex-1 rounded-md border border-red-300 px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
+          </div>
+        )}
 
         <div className="mt-4">
           <button
