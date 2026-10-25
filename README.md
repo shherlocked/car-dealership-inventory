@@ -102,20 +102,23 @@ The seed script is idempotent, so it is safe to run more than once. Admin creden
 
 ## Running the tests
 
-```bash
-# Backend (the first time, create the test database)
-cd backend
-npm run migrate:test
-npm test                # runs Jest with coverage
+Backend (applies the test-database migrations automatically, then runs Jest with coverage):
 
-# Frontend
+```bash
+cd backend
+npm test
+```
+
+Frontend (from the repository root):
+
+```bash
 cd frontend
 npm test
 ```
 
 Other useful scripts: `npm run build` and `npm run lint` in both folders.
 
-Backend test suites share one SQLite test database (`test.db`), so Jest runs them serially (`maxWorkers: 1`). This was fixed after parallel runs caused flaky failures.
+Backend test suites share one SQLite test database (`backend/prisma/test.db`), so Jest runs them serially (`maxWorkers: 1`). This was fixed after parallel runs caused flaky failures.
 
 ---
 
